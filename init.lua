@@ -88,10 +88,10 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = '\\'
 
 -- Set to true if you have a Nerd Font installed
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -149,7 +149,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 5
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -163,6 +163,17 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- Better undo
+vim.keymap.set('n', 'U', '<C-r>')
+
+vim.keymap.set('n', '<leader>n', ':bnext')
+vim.keymap.set('n', '<leader>p', ':bprev')
+
+vim.keymap.set('n', '<leader>cn', ':cnext')
+vim.keymap.set('n', '<leader>cp', ':cprevious')
+vim.keymap.set('n', '<leader>cf', ':cfirst')
+vim.keymap.set('n', '<leader>cl', ':clast')
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -186,6 +197,8 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+vim.keymap.set('n', 'ss', 's')
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -252,7 +265,20 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      on_attach = function(bufnr)
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>hs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', ']g', '<cmd>lua require"gitsigns".next_hunk()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '[g', '<cmd>lua require"gitsigns".prev_hunk()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gr', '<cmd>lua require"gitsigns".reset_hunk()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gq', '<cmd>lua require"gitsigns".setloclist()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gh', '<cmd>lua require"gitsigns".preview_hunk()<CR>', {})
+      end,
     },
+    --   config = function ()
+    -- vim
+    --   .keymap
+    --   .set('n', ']g', ':Gitsigns next_hunk<CR>', { desc = 'Go to next hunk' })
+    -- end
   },
 
   -- NOTE: Plugins can also be configured to run lua code when they are loaded.
@@ -269,7 +295,6 @@ require('lazy').setup({
   -- Then, because we use the `config` key, the configuration only runs
   -- after the plugin has been loaded:
   --  config = function() ... end
-
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -489,7 +514,7 @@ require('lazy').setup({
 
           -- Opens a popup that displays documentation about the word under your cursor
           --  See `:help K` for why this keymap
-          map('K', vim.lsp.buf.hover, 'Hover Documentation')
+          map('<leader>k', vim.lsp.buf.hover, 'Hover Documentation')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header
@@ -532,8 +557,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
+        clangd = {},
+        gopls = {},
+        pylsp = {},
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -653,7 +679,7 @@ require('lazy').setup({
       --    you can use this plugin to help you. It even has snippets
       --    for various frameworks/libraries/etc. but you will have to
       --    set up the ones that are useful for you.
-      -- 'rafamadriz/friendly-snippets',
+      'rafamadriz/friendly-snippets',
     },
     config = function()
       -- See `:help cmp`
@@ -675,14 +701,15 @@ require('lazy').setup({
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<tab>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<S-tab>'] = cmp.mapping.select_prev_item(),
 
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<C-c>'] = cmp.mapping.abort(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -725,14 +752,22 @@ require('lazy').setup({
     'folke/tokyonight.nvim',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
+    -- config = function()
+    --   -- Load the colorscheme here.
+    --   -- Like many other themes, this one has different styles, and you could load
+    --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+    --   vim.cmd.colorscheme 'tokyonight-night'
+    --
+    --   -- You can configure highlights by doing something like
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
+  },
+  {
+    'Mofiqul/adwaita.nvim',
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like
-      vim.cmd.hi 'Comment gui=none'
+      vim.cmd.colorscheme 'adwaita'
     end,
   },
 
@@ -779,17 +814,109 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+    },
     build = ':TSUpdate',
     config = function()
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'go' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
         indent = { enable = true },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = '<A-o>',
+            node_incremental = '<A-o>',
+            scope_incremental = '<A-s>',
+            node_decremental = '<A-i>',
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+
+            -- Automatically jump forward to textobj, similar to targets.vim
+            lookahead = true,
+
+            keymaps = {
+              -- You can use the capture groups defined in textobjects.scm
+              ['af'] = '@function.outer',
+              ['if'] = '@function.inner',
+              ['ac'] = '@class.outer',
+              -- You can optionally set descriptions to the mappings (used in the desc parameter of
+              -- nvim_buf_set_keymap) which plugins like which-key display
+              ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+              -- You can also use captures from other query groups like `locals.scm`
+              ['as'] = { query = '@scope', query_group = 'locals', desc = 'Select language scope' },
+            },
+            -- You can choose the select mode (default is charwise 'v')
+            --
+            -- Can also be a function which gets passed a table with the keys
+            -- * query_string: eg '@function.inner'
+            -- * method: eg 'v' or 'o'
+            -- and should return the mode ('v', 'V', or '<c-v>') or a table
+            -- mapping query_strings to modes.
+            selection_modes = {
+              ['@parameter.outer'] = 'v', -- charwise
+              ['@function.outer'] = 'V', -- linewise
+              ['@class.outer'] = '<c-v>', -- blockwise
+            },
+            -- If you set this to `true` (default is `false`) then any textobject is
+            -- extended to include preceding or succeeding whitespace. Succeeding
+            -- whitespace has priority in order to act similarly to eg the built-in
+            -- `ap`.
+            --
+            -- Can also be a function which gets passed a table with the keys
+            -- * query_string: eg '@function.inner'
+            -- * selection_mode: eg 'v'
+            -- and should return true or false
+            include_surrounding_whitespace = true,
+          },
+          move = {
+            enable = true,
+            set_jumps = true, -- whether to set jumps in the jumplist
+            goto_next_start = {
+              [']f'] = '@function.outer',
+              [']c'] = { query = '@class.outer', desc = 'Next class start' },
+              --
+              -- You can use regex matching (i.e. lua pattern) and/or pass a list in a "query" key to group multiple queires.
+              -- [']o'] = '@loop.*',
+              -- ["]o"] = { query = { "@loop.inner", "@loop.outer" } }
+              --
+              -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
+              -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
+              [']s'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
+              [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
+            },
+            goto_next_end = {
+              [']F'] = '@function.outer',
+              [']C'] = '@class.outer',
+            },
+            goto_previous_start = {
+              ['[f'] = '@function.outer',
+              ['[c'] = '@class.outer',
+            },
+            goto_previous_end = {
+              ['[F'] = '@function.outer',
+              ['[C'] = '@class.outer',
+            },
+            -- Below will go to either the start or the end, whichever is closer.
+            -- Use if you want more granular movements
+            -- Make it even more gradual by adding multiple queries and regex.
+            goto_next = {
+              [']n'] = '@conditional.outer',
+            },
+            goto_previous = {
+              ['[n'] = '@conditional.outer',
+            },
+          },
+        },
       }
 
       -- There are additional nvim-treesitter modules that you can use to interact
@@ -800,6 +927,7 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
+  {},
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
