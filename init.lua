@@ -102,7 +102,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -162,21 +162,21 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setqflist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Better undo
 vim.keymap.set('n', 'U', '<C-r>')
 vim.keymap.set('n', 'ga', '<C-^>')
 
-vim.keymap.set('n', '<leader>n', ':bnext<CR>')
-vim.keymap.set('n', '<leader>p', ':bprev<CR>')
+vim.keymap.set('n', '<leader>n', ':bnext<CR>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<leader>p', ':bprev<CR>', { desc = 'Previous buffer' })
 
-vim.keymap.set('n', '<leader>cn', ':cnext<CR>')
-vim.keymap.set('n', '<leader>cp', ':cprevious<CR>')
-vim.keymap.set('n', '<leader>cf', ':cfirst<CR>')
-vim.keymap.set('n', '<leader>cl', ':clast<CR>')
-vim.keymap.set('n', '<leader>cq', ':cclose<CR>')
-vim.keymap.set('n', '<leader>co', ':copen<CR>')
+vim.keymap.set('n', '<leader>cn', ':cnext<CR>', { desc = 'Next Quickfix list item' })
+vim.keymap.set('n', '<leader>cp', ':cprevious<CR>', { desc = 'Previous Quickfix list item' })
+vim.keymap.set('n', '<leader>cf', ':cfirst<CR>', { desc = 'First Quickfix list item' })
+vim.keymap.set('n', '<leader>cl', ':clast<CR>', { desc = 'Last Quickfix list item' })
+vim.keymap.set('n', '<leader>cq', ':cclose<CR>', { desc = 'Close Quickfix list' })
+vim.keymap.set('n', '<leader>co', ':copen<CR>', { desc = 'Open Quickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -288,12 +288,12 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', ']g', '<cmd>lua require"gitsigns".next_hunk()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '[g', '<cmd>lua require"gitsigns".prev_hunk()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gr', '<cmd>lua require"gitsigns".reset_hunk()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gq', '<cmd>lua require"gitsigns".setqflist()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gh', '<cmd>lua require"gitsigns".preview_hunk()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', ']g', '<cmd>lua require"gitsigns".next_hunk()<CR>', { desc = 'Go to next hunk' })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '[g', '<cmd>lua require"gitsigns".prev_hunk()<CR>', { desc = 'Go to previous hunk' })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', { desc = 'Stage current hunk' })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gr', '<cmd>lua require"gitsigns".reset_hunk()<CR>', { desc = 'Reset current hunk' })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gq', '<cmd>lua require"gitsigns".setqflist()<CR>', { desc = 'Populate Quickfix list' })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gh', '<cmd>lua require"gitsigns".preview_hunk()<CR>', { desc = 'See current hunk diff' })
       end,
     },
     --   config = function ()
@@ -1163,7 +1163,7 @@ function Statusline()
     vcs(),
     ' %=',
     getDiagnostics(),
-    ' %#PmenuSel# %{&fileencoding?&fileencoding:&encoding}[%{&fileformat}] %p%% %l:%c ',
+    ' %#PmenuSel# %{&fileencoding?&fileencoding:&encoding}[%{&fileformat}] %P%% %l:%c ',
   }
 end
 
