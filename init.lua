@@ -1127,12 +1127,12 @@ local function getDiagnostics()
 end
 
 local getBranch = function()
-  if vim.fn.isdirectory '.git' ~= 0 then
-    -- always runs in the current directory, rather than in the buffer's directory
-    local branch = vim.fn.system "git branch --show-current | tr -d '\n'"
-    return ' ' .. branch .. ' '
+  local git_info = vim.b.gitsigns_status_dict
+  if not git_info or git_info.head == '' then
+    return ' '
   end
-  return ' '
+  -- always runs in the current directory, rather than in the buffer's directory
+  return ' ' .. git_info.head .. ' '
 end
 
 local vcs = function()
