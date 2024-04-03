@@ -1163,7 +1163,7 @@ function Statusline()
     vcs(),
     ' %=',
     getDiagnostics(),
-    ' %#PmenuSel# %{&fileencoding?&fileencoding:&encoding}[%{&fileformat}] %P%% %l:%c ',
+    ' %#PmenuSel# %{&fileencoding?&fileencoding:&encoding}[%{&fileformat}] %P %l:%c ',
   }
 end
 
