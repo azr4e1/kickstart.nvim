@@ -108,7 +108,7 @@ vim.opt.number = true
 vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in status line
-vim.opt.showmode = false
+vim.opt.showmode = true
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -166,14 +166,17 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 
 -- Better undo
 vim.keymap.set('n', 'U', '<C-r>')
+vim.keymap.set('n', 'ga', '<C-^>')
 
-vim.keymap.set('n', '<leader>n', ':bnext')
-vim.keymap.set('n', '<leader>p', ':bprev')
+vim.keymap.set('n', '<leader>n', ':bnext<CR>')
+vim.keymap.set('n', '<leader>p', ':bprev<CR>')
 
-vim.keymap.set('n', '<leader>cn', ':cnext')
-vim.keymap.set('n', '<leader>cp', ':cprevious')
-vim.keymap.set('n', '<leader>cf', ':cfirst')
-vim.keymap.set('n', '<leader>cl', ':clast')
+vim.keymap.set('n', '<leader>cn', ':cnext<CR>')
+vim.keymap.set('n', '<leader>cp', ':cprevious<CR>')
+vim.keymap.set('n', '<leader>cf', ':cfirst<CR>')
+vim.keymap.set('n', '<leader>cl', ':clast<CR>')
+vim.keymap.set('n', '<leader>cq', ':cclose<CR>')
+vim.keymap.set('n', '<leader>co', ':copen<CR>')
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -289,7 +292,7 @@ require('lazy').setup({
         vim.api.nvim_buf_set_keymap(bufnr, 'n', '[g', '<cmd>lua require"gitsigns".prev_hunk()<CR>', {})
         vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', {})
         vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gr', '<cmd>lua require"gitsigns".reset_hunk()<CR>', {})
-        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gq', '<cmd>lua require"gitsigns".setloclist()<CR>', {})
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gq', '<cmd>lua require"gitsigns".setqflist()<CR>', {})
         vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>gh', '<cmd>lua require"gitsigns".preview_hunk()<CR>', {})
       end,
     },
@@ -633,7 +636,7 @@ require('lazy').setup({
 
           -- Opens a popup that displays documentation about the word under your cursor
           --  See `:help K` for why this keymap
-          map('<leader>k', vim.lsp.buf.hover, 'Hover Documentation')
+          map('K', vim.lsp.buf.hover, 'Hover Documentation')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header
@@ -1088,6 +1091,84 @@ require('lazy').setup({
     },
   },
 })
+
+local function getDiagnostics()
+  local count = {}
+  local levels = {
+    errors = 'Error',
+    warnings = 'Warn',
+    info = 'Info',
+    hints = 'Hint',
+  }
+
+  for k, level in pairs(levels) do
+    count[k] = vim.tbl_count(vim.diagnostic.get(0, { severity = level }))
+  end
+
+  local errors = ''
+  local warnings = ''
+  local hints = ''
+  local info = ''
+
+  if count['errors'] ~= 0 then
+    errors = ' %#DiagnosticError#E' .. count['errors']
+  end
+  if count['warnings'] ~= 0 then
+    warnings = ' %#DiagnosticWarn#W' .. count['warnings']
+  end
+  if count['hints'] ~= 0 then
+    hints = ' %#DiagnosticHint#H' .. count['hints']
+  end
+  if count['info'] ~= 0 then
+    info = ' %#DiagnosticInfo#I' .. count['info']
+  end
+
+  return errors .. warnings .. hints .. info
+end
+
+local getBranch = function()
+  if vim.fn.isdirectory '.git' ~= 0 then
+    -- always runs in the current directory, rather than in the buffer's directory
+    local branch = vim.fn.system "git branch --show-current | tr -d '\n'"
+    return ' ' .. branch .. ' '
+  end
+  return ' '
+end
+
+local vcs = function()
+  local git_info = vim.b.gitsigns_status_dict
+  if not git_info or git_info.head == '' then
+    return ''
+  end
+  local added = git_info.added and ('%#GitSignsAdd#+' .. git_info.added .. ' ') or ''
+  local changed = git_info.changed and ('%#GitSignsChange#~' .. git_info.changed .. ' ') or ''
+  local removed = git_info.removed and ('%#GitSignsDelete#-' .. git_info.removed .. ' ') or ''
+  if git_info.added == 0 then
+    added = ''
+  end
+  if git_info.changed == 0 then
+    changed = ''
+  end
+  if git_info.removed == 0 then
+    removed = ''
+  end
+  return added .. changed .. removed .. ' '
+end
+
+function Statusline()
+  return table.concat {
+    '%#PmenuSel# %f%m%r%h%w%q ',
+    '%#LineNr#',
+    getBranch(),
+    vcs(),
+    ' %=',
+    getDiagnostics(),
+    ' %#PmenuSel# %{&fileencoding?&fileencoding:&encoding}[%{&fileformat}] %p%% %l:%c ',
+  }
+end
+
+vim.opt.laststatus = 3 -- use global statusline
+vim.cmd [[set statusline=%!v:lua.Statusline()]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
