@@ -201,8 +201,6 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
-vim.keymap.set('n', 'ss', 's')
-
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -521,6 +519,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch jumplist' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
@@ -890,47 +889,15 @@ require('lazy').setup({
       -- vim.cmd.hi 'Comment gui=none'
     end,
   },
+  {
+    'kylechui/nvim-surround',
+    config = function()
+      require('nvim-surround').setup()
+    end,
+  },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
-  { -- Collection of various small independent plugins/modules
-    'echasnovski/mini.nvim',
-    config = function()
-      -- Better Around/Inside textobjects
-      --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [']quote
-      --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
-
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      -- local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      -- statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      -- statusline.section_location = function()
-      --   return '%2l:%-2v'
-      -- end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
-    end,
-  },
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -943,7 +910,7 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'go' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'go', 'python' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
@@ -968,10 +935,12 @@ require('lazy').setup({
               -- You can use the capture groups defined in textobjects.scm
               ['af'] = '@function.outer',
               ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
+              ['at'] = '@class.outer',
               -- You can optionally set descriptions to the mappings (used in the desc parameter of
               -- nvim_buf_set_keymap) which plugins like which-key display
-              ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+              ['it'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+              ['ic'] = { query = '@comment.inner' },
+              ['ac'] = { query = '@comment.outer' },
               -- You can also use captures from other query groups like `locals.scm`
               ['as'] = { query = '@scope', query_group = 'locals', desc = 'Select language scope' },
             },
@@ -982,11 +951,11 @@ require('lazy').setup({
             -- * method: eg 'v' or 'o'
             -- and should return the mode ('v', 'V', or '<c-v>') or a table
             -- mapping query_strings to modes.
-            selection_modes = {
-              ['@parameter.outer'] = 'v', -- charwise
-              ['@function.outer'] = 'V', -- linewise
-              ['@class.outer'] = '<c-v>', -- blockwise
-            },
+            -- selection_modes = {
+            --   ['@parameter.outer'] = 'v', -- charwise
+            --   ['@function.outer'] = 'V', -- linewise
+            --   ['@class.outer'] = '<c-v>', -- blockwise
+            -- },
             -- If you set this to `true` (default is `false`) then any textobject is
             -- extended to include preceding or succeeding whitespace. Succeeding
             -- whitespace has priority in order to act similarly to eg the built-in
@@ -1003,7 +972,9 @@ require('lazy').setup({
             set_jumps = true, -- whether to set jumps in the jumplist
             goto_next_start = {
               [']f'] = '@function.outer',
-              [']c'] = { query = '@class.outer', desc = 'Next class start' },
+              [']t'] = { query = '@class.outer', desc = 'Next class start' },
+              [']c'] = { query = '@comment.outer', desc = 'Next class start' },
+              [']p'] = '@parameter',
               --
               -- You can use regex matching (i.e. lua pattern) and/or pass a list in a "query" key to group multiple queires.
               -- [']o'] = '@loop.*',
@@ -1011,32 +982,36 @@ require('lazy').setup({
               --
               -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
               -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
-              [']s'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
+              [']S'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
               [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
             },
             goto_next_end = {
               [']F'] = '@function.outer',
-              [']C'] = '@class.outer',
+              [']T'] = '@class.outer',
+              [']C'] = { query = '@comment.outer', desc = 'Next class start' },
             },
             goto_previous_start = {
               ['[f'] = '@function.outer',
-              ['[c'] = '@class.outer',
+              ['[t'] = '@class.outer',
+              ['[c'] = { query = '@comment.outer', desc = 'Next class start' },
+              ['[p'] = '@parameter',
+              ['[S'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
+              ['[z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
             },
             goto_previous_end = {
               ['[F'] = '@function.outer',
-              ['[C'] = '@class.outer',
+              ['[T'] = '@class.outer',
+              ['[C'] = { query = '@comment.outer', desc = 'Next class start' },
             },
             -- Below will go to either the start or the end, whichever is closer.
             -- Use if you want more granular movements
             -- Make it even more gradual by adding multiple queries and regex.
-            goto_next = {
-              [']p'] = '@parameter',
-              [']n'] = '@conditional.outer',
-            },
-            goto_previous = {
-              ['[p'] = '@parameter',
-              ['[n'] = '@conditional.outer',
-            },
+            -- goto_next = {
+            --   [']n'] = '@conditional.outer',
+            -- },
+            -- goto_previous = {
+            --   ['[n'] = '@conditional.outer',
+            -- },
           },
         },
       }
