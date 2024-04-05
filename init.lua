@@ -102,7 +102,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
-vim.opt.relativenumber = true
+-- vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -433,6 +433,7 @@ require('lazy').setup({
 
               -- disable c-j because we dont want to allow new lines #2123
               ['<C-j>'] = actions.nop,
+              ['<C-b>'] = actions.delete_buffer,
             },
             n = {
               -- ['<LeftMouse>'] = {
@@ -483,6 +484,7 @@ require('lazy').setup({
               -- ['<M-k>'] = actions.results_scrolling_right,
 
               ['?'] = actions.which_key,
+              ['<C-b>'] = actions.delete_buffer,
             },
           },
           layout_strategy = 'horizontal',
@@ -875,22 +877,17 @@ require('lazy').setup({
     'folke/tokyonight.nvim',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
-    -- config = function()
-    --   -- Load the colorscheme here.
-    --   -- Like many other themes, this one has different styles, and you could load
-    --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-    --   vim.cmd.colorscheme 'tokyonight-night'
-    --
-    --   -- You can configure highlights by doing something like
-    --   vim.cmd.hi 'Comment gui=none'
-    -- end,
-  },
-  {
-    'Mofiqul/adwaita.nvim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      vim.cmd.colorscheme 'adwaita'
+      -- Load the colorscheme here.
+      -- Like many other themes, this one has different styles, and you could load
+      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+      -- require('tokyonight').setup {
+      --   transparent = true,
+      -- }
+      vim.cmd.colorscheme 'tokyonight-night'
+
+      -- You can configure highlights by doing something like
+      -- vim.cmd.hi 'Comment gui=none'
     end,
   },
 
@@ -1050,7 +1047,6 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
-  {},
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
