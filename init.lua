@@ -1030,9 +1030,11 @@ require('lazy').setup({
             -- Use if you want more granular movements
             -- Make it even more gradual by adding multiple queries and regex.
             goto_next = {
+              [']p'] = '@parameter',
               [']n'] = '@conditional.outer',
             },
             goto_previous = {
+              ['[p'] = '@parameter',
               ['[n'] = '@conditional.outer',
             },
           },
