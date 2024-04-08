@@ -942,6 +942,8 @@ require('lazy').setup({
               ['it'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
               ['ic'] = { query = '@comment.inner' },
               ['ac'] = { query = '@comment.outer' },
+              ['ia'] = { query = '@parameter.inner' },
+              ['aa'] = { query = '@parameter.outer' },
               -- You can also use captures from other query groups like `locals.scm`
               ['as'] = { query = '@scope', query_group = 'locals', desc = 'Select language scope' },
             },
@@ -975,7 +977,7 @@ require('lazy').setup({
               [']f'] = '@function.outer',
               [']t'] = { query = '@class.outer', desc = 'Next class start' },
               [']c'] = { query = '@comment.outer', desc = 'Next class start' },
-              [']p'] = '@parameter',
+              [']a'] = '@parameter',
               --
               -- You can use regex matching (i.e. lua pattern) and/or pass a list in a "query" key to group multiple queires.
               -- [']o'] = '@loop.*',
@@ -995,7 +997,7 @@ require('lazy').setup({
               ['[f'] = '@function.outer',
               ['[t'] = '@class.outer',
               ['[c'] = { query = '@comment.outer', desc = 'Next class start' },
-              ['[p'] = '@parameter',
+              ['[a'] = '@parameter',
               ['[S'] = { query = '@scope', query_group = 'locals', desc = 'Next scope' },
               ['[z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
             },
