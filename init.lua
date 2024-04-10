@@ -521,7 +521,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch jumplist' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader>tt', ':TodoTelescope<CR>', { desc = 'Search TODOs' })
+      vim.keymap.set('n', '<leader>TT', ':TodoTelescope<CR>', { desc = 'Search TODOs' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -901,6 +901,55 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'azr4e1/easyREPL.nvim',
+    config = function()
+      require('easyREPL').setup {
+        name = 'REPL',
+        cwd = '.',
+        nr_cr = 1,
+        strip = false,
+        nonewline = true,
+        screen_pct = '30%',
+        horizontal = false,
+        floating = false,
+      }
+
+      local actions = require 'easyREPL.actions'
+
+      vim.keymap.set('n', '<leader>ta', actions.add_new_repl_auto_and_show, { desc = 'Spawn new REPL.' })
+      vim.keymap.set('n', '<leader>tn', actions.add_new_select_and_show, { desc = 'Spawn new REPL.' })
+      vim.keymap.set('n', '<leader>tb', actions.add_new_select_repl, { desc = 'Spawn new REPL in background.' })
+      vim.keymap.set('n', '<leader>tsa', actions.send_line_to_all, { desc = 'Send current line to all REPLs.' })
+      vim.keymap.set('n', '<leader>tss', actions.send_line_to_select_repl, { desc = 'Send current line to a REPL.' })
+      vim.keymap.set(
+        'v',
+        '<leader>tsa',
+        ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_all()<CR>",
+        { desc = 'Send selection to all REPLs.', silent = true }
+      )
+      vim.keymap.set(
+        'v',
+        '<leader>tss',
+        ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_select_repl",
+        { desc = 'Send selection to a REPL.', silent = true }
+      )
+      vim.keymap.set('n', '<leader>tka', actions.kill_all, { desc = 'Kill all REPLs.' })
+      vim.keymap.set('n', '<leader>tks', actions.kill_select_repl, { desc = 'Kill a REPL.' })
+      vim.keymap.set('n', '<leader>tl', actions.list_repls, { desc = 'List REPLs running.' })
+      vim.keymap.set('n', '<leader>th', actions.to_horizontal_select, { desc = 'Switch a REPL to a horizontal layout.' })
+      vim.keymap.set('n', '<leader>tv', actions.to_vertical_select, { desc = 'Switch a REPL to a vertical layout.' })
+      vim.keymap.set('n', '<leader>tf', actions.to_float_select, { desc = 'Switch a REPL to a floating window layout.' })
+      vim.keymap.set('n', '<leader>tH', actions.hide_all, { desc = 'Hide all REPLs.' })
+      vim.keymap.set('n', '<leader>tS', actions.show_all, { desc = 'Show all REPLs.' })
+      vim.keymap.set('n', '<leader>tt', actions.toggle_select_repl, { desc = 'Toggle a REPL.' })
+      vim.keymap.set('n', '<leader>tc', actions.clear_select_repl, { desc = 'Interrupt a REPL.' })
+      vim.keymap.set('n', '<leader>ti', actions.interrupt_select_repl, { desc = 'Clear content of a REPL.' })
+      vim.keymap.set('n', '<leader>tr', actions.resize_pct_select, { desc = 'Resize a REPL.' })
+      vim.keymap.set('n', '<leader>tR', actions.restart_select_repl, { desc = 'Restart a REPL.' })
+      vim.keymap.set('n', '<leader>tm', actions.rename_select_repl, { desc = 'Rename a REPL.' })
+    end,
+  },
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
