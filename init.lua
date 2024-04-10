@@ -931,7 +931,7 @@ require('lazy').setup({
       vim.keymap.set(
         'v',
         '<leader>tss',
-        ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_select_repl",
+        ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_select_repl<CR>",
         { desc = 'Send selection to a REPL.', silent = true }
       )
       vim.keymap.set('n', '<leader>tka', actions.kill_all, { desc = 'Kill all REPLs.' })
