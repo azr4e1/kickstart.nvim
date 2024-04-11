@@ -936,7 +936,7 @@ require('lazy').setup({
       )
       vim.keymap.set('n', '<leader>tka', actions.kill_all, { desc = 'Kill all REPLs.' })
       vim.keymap.set('n', '<leader>tks', actions.kill_select_repl, { desc = 'Kill a REPL.' })
-      vim.keymap.set('n', '<leader>tl', actions.list_repls, { desc = 'List REPLs running.' })
+      vim.keymap.set('n', '<leader>tl', ":call v:lua.require('easyREPL.actions').list_repls()<CR>", { desc = 'List REPLs running.', silent = true })
       vim.keymap.set('n', '<leader>th', actions.to_horizontal_select, { desc = 'Switch a REPL to a horizontal layout.' })
       vim.keymap.set('n', '<leader>tv', actions.to_vertical_select, { desc = 'Switch a REPL to a vertical layout.' })
       vim.keymap.set('n', '<leader>tf', actions.to_float_select, { desc = 'Switch a REPL to a floating window layout.' })
