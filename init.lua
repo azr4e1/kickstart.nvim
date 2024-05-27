@@ -178,6 +178,8 @@ vim.keymap.set('n', '<leader>cl', ':clast<CR>', { desc = 'Last Quickfix list ite
 vim.keymap.set('n', '<leader>cq', ':cclose<CR>', { desc = 'Close Quickfix list' })
 vim.keymap.set('n', '<leader>co', ':copen<CR>', { desc = 'Open Quickfix list' })
 
+vim.keymap.set('n', '<leader>C', ':set cursorcolumn!<CR>', { desc = 'Toggle cursor column' })
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -683,15 +685,7 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         gopls = {},
-        pylsp = {
-          settings = {
-            pylsp = {
-              plugins = {
-                autopep8 = { enabled = false },
-              },
-            },
-          },
-        },
+        pylsp = {},
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
