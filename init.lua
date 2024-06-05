@@ -178,7 +178,7 @@ vim.keymap.set('n', '<leader>cl', ':clast<CR>', { desc = 'Last Quickfix list ite
 vim.keymap.set('n', '<leader>cq', ':cclose<CR>', { desc = 'Close Quickfix list' })
 vim.keymap.set('n', '<leader>co', ':copen<CR>', { desc = 'Open Quickfix list' })
 
-vim.keymap.set('n', '<leader>C', ':set cursorcolumn!<CR>', { desc = 'Toggle cursor column' })
+vim.keymap.set('n', '<leader>C', ':set cursorcolumn!<CR>', { silent = true, desc = 'Toggle cursor column' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
