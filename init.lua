@@ -923,6 +923,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>tn', actions.add_new_select_and_show, { desc = 'Spawn new REPL.' })
       vim.keymap.set('n', '<leader>tb', actions.add_new_select_repl, { desc = 'Spawn new REPL in background.' })
       vim.keymap.set('n', '<leader>tsa', actions.send_line_to_all, { desc = 'Send current line to all REPLs.' })
+      vim.keymap.set('n', '<C-t>', actions.send_line_to_all, { desc = 'Send current line to all REPLs.' })
       vim.keymap.set('n', '<leader>tss', actions.send_line_to_select_repl, { desc = 'Send current line to a REPL.' })
       vim.keymap.set(
         'v',
@@ -930,6 +931,7 @@ require('lazy').setup({
         ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_all()<CR>",
         { desc = 'Send selection to all REPLs.', silent = true }
       )
+      vim.keymap.set('v', '<C-t>', ":<C-u>call v:lua.require('easyREPL.actions').send_selection_to_all()<CR>", { desc = 'Send current line to all REPLs.' })
       vim.keymap.set(
         'v',
         '<leader>tss',
